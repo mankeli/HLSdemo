@@ -1,0 +1,2 @@
+PANELCONFIG=panelconfig.txt ./hlstest
+
