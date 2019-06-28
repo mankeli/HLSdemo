@@ -7,22 +7,27 @@
 
 ## Basic usage:
 
-	initialization:
-		The lib is initialized with "hlsudpcomm_t* hlsudp_open(void)""
-		this initializes send socket, and loads panel definitions
-		from a file specified in env variable PANELCONFIG.
+###	initialization:
+	The lib is initialized with "hlsudpcomm_t* hlsudp_open(void)""
+	this initializes send socket, and loads panel definitions
+	from a file specified in env variable PANELCONFIG.
 
-	Data sending:
-		"void hlsudp_sendtile(hlsudpcomm_t* ctx, uint8_t *pixels, int pixelsize, int frame, int xo, int yo)"
-		Provide pointer to context got from hlsudp_open(), 16*16 block of pixel data, pixel size in bytes
-		(only 6 is supported, 16 bits per channel RGB), frame number, and x,y coordinates to the
-		top-left corner of the tile position on screen.
+### Data sending:
+	"void hlsudp_sendtile(hlsudpcomm_t* ctx, uint8_t *pixels, int pixelsize, int frame, int xo, int yo)"
+	Provide pointer to context got from hlsudp_open(), 16*16 block of pixel data, pixel size in bytes
+	(only 6 is supported, 16 bits per channel RGB), frame number, and x,y coordinates to the
+	top-left corner of the tile position on screen.
 
-		After every tile has been sent, you call "void hlsudp_sendswap(hlsudpcomm_t* ctx, int frame)".
-		This sends broadcast packet to network which causes all panels to show new image syncronously.
+	After every tile has been sent, you call "void hlsudp_sendswap(hlsudpcomm_t* ctx, int frame)".
+	This sends broadcast packet to network which causes all panels to show new image syncronously.
 
-	Closing:
-		Use "void hlsudp_shutdown(hlsudpcomm_t* ctx)".
+	It might be a good idea to send swap for previous frame just before new tiles are sent.
+	This allows network to transmit all packets to their destinations. If Swap packet is sent
+	right after tiles and packets get reordered during transmit, it might cause visible
+	glitches on the screen.
+
+### Closing:
+	Use "void hlsudp_shutdown(hlsudpcomm_t* ctx)".
 
 
 ## Panel config file:
