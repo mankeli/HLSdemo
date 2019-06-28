@@ -7,8 +7,8 @@
 #include <string.h>
 #include <unistd.h>
 
-/* diep(), #includes and #defines like in the server */
-
+#define FRAMETYPE_TILEDATA 1
+#define FRAMETYPE_SWAP 2
 typedef struct
 {
   union
@@ -171,7 +171,7 @@ static void hlsudp_sendtile(hlsudpcomm_t* ctx, uint8_t *pixels, int pixelsize, i
 	int tilesize_y = 16;
 
 	packet_t tmp;
-	tmp.hdr.type = 1;
+	tmp.hdr.type = FRAMETYPE_TILEDATA;
 	tmp.hdr.frame = frame & 255;
 	memcpy(&tmp.payload, pixels, tilesize_x*tilesize_y*pixelsize);
 
@@ -208,7 +208,7 @@ static void hlsudp_sendtile(hlsudpcomm_t* ctx, uint8_t *pixels, int pixelsize, i
 static void hlsudp_sendswap(hlsudpcomm_t* ctx, int frame)
 {
 	packet_t tmp;
-	tmp.hdr.type = 2;
+	tmp.hdr.type = FRAMETYPE_SWAP;
 	tmp.hdr.frame = frame & 255;
 	size_t packsiz = sizeof(packethdr_t);
 
