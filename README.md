@@ -1,11 +1,11 @@
 # Hacklab LED System library and demo
 
 ## Terminology:
-    hls    = Hacklab Led System
+    hls    = Hacklab LED System
 	panel  = Single physical LED display device that has it's own IP address.
 	screen = Bigger display that is formed from multiple panels.
 
-## Basic usage:
+## Library Basic usage:
 
 ###	initialization:
 	The lib is initialized with "hlsudpcomm_t* hlsudp_open(void)""
@@ -52,3 +52,16 @@
 	2. Wait until each panel gets an IP address. It will be shown on the panel
 	3. write panel addresses into the config file
 	4. enjoy
+
+## Demo
+	Simple demo uses SDL2 software rendering to do some basic effect on the LED display.
+	It's meant to run on Raspberry PI / raspbian, but should work on desktops too.
+	Requires libsdl2-dev / libsdl2-ttf-dev libs from APT.
+
+	Compile with make, and run with ./hlstest for preview.
+	./run.sh also uses panelconfig.txt, which should work with the real display.
+
+## DHCP server
+	This repository also includes configuration for BusyBox udhcpd server.
+	Run ./runudhcpd.sh in dhcp directory. This reconfigures eth0, and starts
+	a dhcp server. Should work for Raspberry PI atleast.

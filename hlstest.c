@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "udpcomm_c.h"
 
 hlsudpcomm_t* ctx;
@@ -31,14 +32,13 @@ void sendframe(SDL_Surface* image)
 
 					uint32_t *pixels = (uint32_t *)(image->pixels + y * image->pitch);
 
-					int r = (pixels[x] >> 0) & 255;
+					int r = (pixels[x] >> 16) & 255;
 					int g = (pixels[x] >> 8) & 255;
-					int b = (pixels[x] >> 16) & 255;
+					int b = (pixels[x] >> 0) & 255;
 
-					data[idx+0] = r*256+r;
-					data[idx+1] = g*256+g;
-					data[idx+2] = b*256+b;
- 
+					data[idx+0] = r*r;
+					data[idx+1] = g*g;
+					data[idx+2] = b*b;
 				}
 
 
@@ -51,6 +51,36 @@ void sendframe(SDL_Surface* image)
 	sendframenum++;
 
 }
+
+
+TTF_Font* loadfont(char* file, int ptsize) {
+	TTF_Font* tmpfont;
+	tmpfont = TTF_OpenFont(file, ptsize);
+	if (tmpfont == NULL){
+	printf("Unable to load font: %s %s \n", file, TTF_GetError());
+	// Handle the error here.
+	}
+	return tmpfont;
+}
+
+void drawtext(SDL_Surface* image, TTF_Font *font, int x, int y, const char* text, uint32_t color)
+{
+	SDL_Color tmpfontcolor = *(SDL_Color*)(&color);
+	SDL_Surface *resulting_text;
+
+	resulting_text = TTF_RenderText_Blended(font, text, tmpfontcolor);
+
+		SDL_Rect rect;
+		rect.x = x;
+		rect.y = y;
+		rect.w = resulting_text->w;
+		rect.h = resulting_text->h;
+	SDL_BlitSurface(resulting_text, NULL, image, &rect);
+
+	SDL_FreeSurface(resulting_text);
+}
+
+
 
 int min(int v1, int v2)
 {
@@ -98,7 +128,12 @@ void gradientrect(SDL_Surface* image, SDL_Rect* rect)
 
 void draweffy(SDL_Surface* image)
 {
-	float aaika = SDL_GetTicks();
+	static float aaika;
+
+	const Uint8* keystates = SDL_GetKeyboardState(NULL);
+	if (!keystates[SDL_SCANCODE_SPACE])
+		aaika = SDL_GetTicks();
+
 	SDL_FillRect(image, NULL, 0x404040);
 	{
 		float xx = sin(aaika*0.00192f);
@@ -150,6 +185,13 @@ int main(int argc, char *argv[])
 
 	SDL_Surface *image = SDL_CreateRGBSurface(0, screensiz_w, screensiz_h, 32, 0,0,0,0);
 
+	if (TTF_Init() == -1) {
+		printf("Unable to initialize SDL_ttf: %s \n", TTF_GetError());
+		return 1;
+	}
+
+	TTF_Font* font = loadfont("LeroyLetteringLightBeta01.ttf", 20);
+	TTF_Font* font2 = loadfont("LeroyLetteringLightBeta01.ttf", 15);
 
 	int lasttime = 0;
 	int frames = 0;
@@ -167,7 +209,6 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		const Uint8* 	keystates = SDL_GetKeyboardState(NULL);
 
 		// wait atleast 16msec between frames ~= 60fps
 		#define FRAMETIME 16
@@ -191,6 +232,10 @@ int main(int argc, char *argv[])
 
 		// draw effy
 		draweffy(image);
+
+		drawtext(image, font2, 5, 5, "Hacklab", 0xFF90FF90);
+		drawtext(image, font, 5, 16, "LED", 0xFF9090FF);
+		drawtext(image, font, 20, 27, "system", 0xFFFFe0e0);
 
 		// convert image to HDR and send to panels
 		sendframe(image);
