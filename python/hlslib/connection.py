@@ -24,7 +24,7 @@ class Packet:  # pylint: disable=R0903
         """Pack to binary"""
         # Make sure frameno is within byte
         frameno = self.frameno % 255
-        return struct.pack('!B!B!H!H!Q',
+        return struct.pack('<B<B<H<H<Q',
                            self.type,
                            frameno,
                            self.position[0],
