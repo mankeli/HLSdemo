@@ -24,12 +24,13 @@ class Packet:  # pylint: disable=R0903
         """Pack to binary"""
         # Make sure frameno is within byte
         frameno = self.frameno % 255
-        return struct.pack('<B<B<H<H<Q',
+        print('DEBUG: packet.position={}'.format(self.position))
+        return struct.pack('<BBHH8s',
                            self.type,
                            frameno,
                            self.position[0],
                            self.position[1],
-                           self._size
+                           b''
                            ) + self.payload
 
 
@@ -55,19 +56,33 @@ class Connection:
                                    socket.SOCK_DGRAM,
                                    socket.IPPROTO_UDP)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
+        try:
+            self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
+        except OSError:
+            pass
 
     def send_tile(self, tile, frameno):
         """send a given tile to the panels UDP socket"""
         packet = Packet()
+        packet.type = FrameType.tile
         packet.frameno = frameno
         packet.position = tile.panel_position
         packet.payload = tile.pixeldata.tobytes()
-        self._sock.sendto(tile.pack(), tile.panel.addr)
+        try:
+            packed = packet.pack()
+            print('DEBUG: packet={}'.format(packed))
+            self._sock.sendto(packed, tile.panel.addr)
+        except OSError:
+            # TODO: log ?
+            pass
 
     def send_swap(self, frameno):
         """Broadcast the swap frame command"""
         packet = Packet()
         packet.frameno = frameno
         packet.type = FrameType.swap
-        self._sock.sendto(packet.pack(), self.swap_addr)
+        try:
+            self._sock.sendto(packet.pack(), self.swap_addr)
+        except OSError:
+            # TODO: log ?
+            pass

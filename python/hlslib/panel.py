@@ -1,6 +1,5 @@
 """Abstract a panel"""
-import numpy as np
-
+from .common import get_pixbuf
 from .tile import TILE_SIZE, Tile
 
 PANEL_DEFAULT_SIZE = (128, 96)
@@ -15,6 +14,12 @@ class Panel:
     p_array = None
     tiles = None
     connection = None
+
+    def __repr__(self):
+        return '<Panel(addr={ip}:{port}, array_position={apos}, size={size})>'.format(
+            ip=self.addr[0], port=self.addr[1], size=self.size,
+            apos=self.array_position
+        )
 
     def __init__(self, ip, port=9998, pixeldata=None, connection=None,
                  p_array=None, array_position=(0, 0), size=PANEL_DEFAULT_SIZE):
@@ -37,10 +42,7 @@ class Panel:
                 array_position[0]:array_position[0] + self.size[0]
             ]
         else:
-            self.pixeldata = np.zeros(
-                shape=(self.size[1], self.size[0]),
-                dtype=np.uint16
-            )
+            self.pixeldata = get_pixbuf(self.size)
         self.create_tiles()
 
     def send_pixels(self, frameno=0):

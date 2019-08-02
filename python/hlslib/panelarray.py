@@ -1,8 +1,7 @@
 """Abstract array of panels"""
 import enum
 
-import numpy as np
-
+from .common import get_pixbuf
 from .connection import Connection
 from .panel import Panel
 
@@ -24,6 +23,10 @@ class PanelArray:
     connection = None
     frameno = 0
     pixeldata = None
+
+    def __init__(self, filepath=None):
+        if filepath:
+            self.read_panelcfg(filepath)
 
     def send_swap(self):
         """Shorthand to connection.send_swap"""
@@ -59,12 +62,14 @@ class PanelArray:
                 global_config[ConfigParts.endx],
                 global_config[ConfigParts.endy]
             )
-            self.pixeldata = np.zeros(
-                shape=(self.size[1], self.size[0]),
-                dtype=np.uint16
-            )
+            self.pixeldata = get_pixbuf(self.size)
             # Init the panels
             for line in lines[1:]:
+                line = line.strip()
+                if not line:
+                    continue
+                if line.startswith('#'):
+                    continue
                 local_config = split_line(line)
                 panel_size = (
                     local_config[ConfigParts.endx] - local_config[ConfigParts.startx],

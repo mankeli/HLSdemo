@@ -10,6 +10,11 @@ class Tile:  # pylint: disable=R0903
     array_position = (0, 0)
     panel = None
 
+    def __repr__(self):
+        return '<Tile(panel_position={ppos}, array_position={apos})>'.format(
+            ppos=self.panel_position, apos=self.array_position
+        )
+
     def __init__(self, panel, panel_position):
         self.panel = panel
         self.panel_position = panel_position
