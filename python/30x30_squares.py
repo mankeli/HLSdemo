@@ -1,8 +1,12 @@
+import logging
 import time
 
 import numpy as np
 
 import hlslib
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
 
 COLOR_MAX = 2**16 - 1
 RED = np.array((COLOR_MAX, 0, 0), dtype=np.uint16)
@@ -20,5 +24,5 @@ a.pixeldata[30:60, 30:60] = GREEN
 a.pixeldata[60:90, 60:90] = RED
 a.send_frame()
 while True:
-    time.sleep(1.0 / 30)
+    time.sleep(1.0 / 2)
     a.send_frame()
