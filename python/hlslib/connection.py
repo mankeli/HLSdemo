@@ -1,9 +1,12 @@
 """Open the UDP socket"""
 import enum
+import logging
 import socket
 import struct
 
 BUFFER_SIZE = 64 * 1024 * 1024  # 64MB Kernel send buffer size
+
+LOGGER = logging.getLogger('hlslib.connection')
 
 
 class FrameType(enum.IntEnum):
@@ -20,18 +23,26 @@ class Packet:  # pylint: disable=R0903
     _size = 0  # apparently unused
     payload = b''
 
+    def __repr__(self):
+        return '<Packet(type={type}, frameno={frameno}, position={pos}, payload_len={plen})>'.format(
+            type=self.type, frameno=self.frameno, pos=self.position,
+            plen=len(self.payload)
+        )
+
     def pack(self):
         """Pack to binary"""
         # Make sure frameno is within byte
         frameno = self.frameno % 255
-        print('DEBUG: packet.position={}'.format(self.position))
-        return struct.pack('<BBHH8s',
-                           self.type,
-                           frameno,
-                           self.position[0],
-                           self.position[1],
-                           b''
-                           ) + self.payload
+        LOGGER.debug('Packing {} (packet frameno={})'.format(self, frameno))
+        header = struct.pack('<BBHH8s',
+                             self.type,
+                             frameno,
+                             self.position[0],
+                             self.position[1],
+                             b''
+                             )
+        LOGGER.debug('raw header: {}'.format(repr(header)))
+        return header + self.payload
 
 
 class Connection:
@@ -70,7 +81,6 @@ class Connection:
         packet.payload = tile.pixeldata.tobytes()
         try:
             packed = packet.pack()
-            print('DEBUG: packet={}'.format(packed))
             self._sock.sendto(packed, tile.panel.addr)
         except OSError:
             # TODO: log ?
