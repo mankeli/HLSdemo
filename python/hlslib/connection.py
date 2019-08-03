@@ -36,7 +36,7 @@ class Packet:  # pylint: disable=R0903
             self.frameno = 0
         frameno = self.frameno % 255
         LOGGER.debug('Packing {} (packet frameno={})'.format(self, frameno))
-        header = struct.pack('<BBHH8s',
+        header = struct.pack('<BBHH2s',
                              self.type,
                              frameno,
                              self.position[0],
