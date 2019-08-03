@@ -10,8 +10,8 @@ class ConfigParts(enum.IntEnum):
     """Usable names for config tuple parts"""
     startx = 0
     starty = 1
-    endx = 2
-    endy = 3
+    sizex = 2
+    sizey = 3
     ip = 4
     port = 5
 
@@ -45,9 +45,9 @@ class PanelArray:
     def read_panelcfg(self, filepath):
         """Read the config file and init connection + panels"""
         def split_line(line):
-            startx, starty, endx, endy, ipaddr, port = line.split(',')
+            startx, starty, sizex, sizey, ipaddr, port = line.split(',')
             return (int(startx), int(starty),
-                    int(endx), int(endy),
+                    int(sizex), int(sizey),
                     ipaddr.strip(), int(port))
 
         self.panels = []
@@ -59,8 +59,8 @@ class PanelArray:
                 global_config[ConfigParts.port]
             )
             self.size = (
-                global_config[ConfigParts.endx],
-                global_config[ConfigParts.endy]
+                global_config[ConfigParts.sizex],
+                global_config[ConfigParts.sizey]
             )
             self.pixeldata = get_pixbuf(self.size)
             # Init the panels
@@ -71,14 +71,14 @@ class PanelArray:
                 if line.startswith('#'):
                     continue
                 local_config = split_line(line)
-                panel_size = (
-                    local_config[ConfigParts.endx] - local_config[ConfigParts.startx],
-                    local_config[ConfigParts.endy] - local_config[ConfigParts.starty],
-                )
                 panel = Panel(
                     local_config[ConfigParts.ip],
                     local_config[ConfigParts.port],
-                    p_array=self, size=panel_size,
+                    p_array=self,
+                    size=(
+                        local_config[ConfigParts.sizex],
+                        local_config[ConfigParts.sizey],
+                    ),
                     array_position=(
                         local_config[ConfigParts.startx],
                         local_config[ConfigParts.starty]
