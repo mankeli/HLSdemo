@@ -38,9 +38,9 @@ def get_tile_by_array_position(panel_array, tile_pos):
     """Get a tile in given position, position must be tile aligned"""
     for panel in panel_array.panels:
         for tile in panel.tiles:
-            if (tile.array_position[0] == tile_pos[0] and
-                    tile.array_position[1] == tile_pos[1]):
+            if tile.array_position[0] == tile_pos[0] and tile.array_position[1] == tile_pos[1]:
                 return tile
+    return None
 
 
 def fill_squares(panel_array, side_len=30):
