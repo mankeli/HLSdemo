@@ -37,7 +37,7 @@ class PanelArray:
            and send next frame pixels, use send_swap() to force swap after this
            if you're not sending animations, just make sure to wait a moment
            so the pixeldata has time to arrive"""
-        self.connection.send_swap(self.frameno)
+        self.connection.send_swap(self.frameno - 1)
         for panel in self.panels:
             panel.send_pixels(self.frameno)
         self.frameno += 1

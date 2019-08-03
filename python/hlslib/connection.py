@@ -32,6 +32,8 @@ class Packet:  # pylint: disable=R0903
     def pack(self):
         """Pack to binary"""
         # Make sure frameno is within byte
+        if self.frameno < 0:
+            self.frameno = 0
         frameno = self.frameno % 255
         LOGGER.debug('Packing {} (packet frameno={})'.format(self, frameno))
         header = struct.pack('<BBHH8s',
