@@ -22,6 +22,6 @@ class Tile:  # pylint: disable=R0903
                                panel.array_position[1] + panel_position[1])
         # Remember: numpy uses y,x array indexing
         self.pixeldata = self.panel.pixeldata[
-            panel_position[1]:panel_position[1] + 16,
-            panel_position[0]:panel_position[0] + 16
+            panel_position[1]:panel_position[1] + TILE_SIZE[1],
+            panel_position[0]:panel_position[0] + TILE_SIZE[0]
         ]
